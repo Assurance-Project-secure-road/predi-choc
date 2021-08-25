@@ -20,7 +20,7 @@ def client():
     yield client
 
 
-def test_index_nologin(client):
+def test_index(client):
     """Test for the index page"""
     rv = client.get("/")
     assert rv.status_code == 200
