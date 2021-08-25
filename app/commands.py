@@ -7,6 +7,7 @@ from consolemenu import SelectionMenu
 from app.models import Caracteristique, Lieux, Usager, Vehicule, User, UserRole
 from app.db import db
 
+
 @click.command("insert-db")
 @with_appcontext
 def insert_db():
@@ -27,7 +28,7 @@ def insert_db():
     Usager.insert_from_pd(caracteristiques)
     Vehicule.insert_from_pd(caracteristiques)
     print("Données dans la BDD insérées")
-    
+
     # On crée les roles Admin et Membre avec des permissions différentes
     roles = [
         UserRole(
@@ -52,6 +53,7 @@ def insert_db():
     db.session.commit()
     print("Tout a été inséré dans la base de données !")
 
+
 @click.command("create-user")
 @with_appcontext
 def create_user():
@@ -60,7 +62,11 @@ def create_user():
     roles = UserRole.query.all()
 
     # On affiche un menu de sélection du rôle pour le nouvel utilisateur et on récupère la sélection
-    index = SelectionMenu.get_selection([role.name for role in roles], title="Sélectionner un rôle d'utilisateur", show_exit_option=False)
+    index = SelectionMenu.get_selection(
+        [role.name for role in roles],
+        title="Sélectionner un rôle d'utilisateur",
+        show_exit_option=False,
+    )
 
     print(f"Ajout d'un utilisateur appartenant au groupe {roles[index].name}")
     # On demande l'adresse e-mail
@@ -68,11 +74,15 @@ def create_user():
     # On demande le mot de passe
     password = getpass("Entrer le mot de passe utilisateur : ")
     confirm_password = getpass("Veuillez confirmer votre mot de passe : ")
-    
+
     # On vérifie que les mots de passes tapées soient les mêmes
     if confirm_password == password:
         # On crée un nouvel utilisateur avec les champs renseignés et le role_id
-        insert_user = User(email=email, password=generate_password_hash(password), role_id=roles[index].id)
+        insert_user = User(
+            email=email,
+            password=generate_password_hash(password),
+            role_id=roles[index].id,
+        )
         # On l'ajoute à la BDD
         db.session.add(insert_user)
         # On confirme les changements de la transaction

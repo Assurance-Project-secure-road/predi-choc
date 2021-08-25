@@ -6,6 +6,7 @@ from app.controllers import main_controllers
 from app.db import db
 from app.commands import insert_db, create_user
 
+
 def create_app(test_config=None):
     # On initialise l'app flask
     app = Flask(__name__, instance_relative_config=True)
@@ -36,14 +37,18 @@ def create_app(test_config=None):
     # Si la variable d'environnement (défini via terminal ou dans le fichier .env à la racine du dossier) DATABASE_URL existe
     # On remplace la config de connexion à la base de données par cette variable environnment
     if "DATABASE_URL" in os.environ:
-        app.config.from_mapping({
-            "SQLALCHEMY_DATABASE_URI": os.environ["DATABASE_URL"].replace("postgres://", "postgresql+psycopg2://")
-        })
+        app.config.from_mapping(
+            {
+                "SQLALCHEMY_DATABASE_URI": os.environ["DATABASE_URL"].replace(
+                    "postgres://", "postgresql+psycopg2://"
+                )
+            }
+        )
 
     # Dans le cas de tests, on passe directement la configuration à create_app, la config de test doit donc remplacer toutes les configs précédentes
     if test_config is not None:
         app.config.from_mapping(test_config)
-    
+
     # On initialise la configuration de connexion à la bdd
     db.init_app(app)
 
@@ -55,7 +60,7 @@ def create_app(test_config=None):
 
     # On ajoute la commande "flask create-user" à l'application
     app.cli.add_command(create_user)
-    
+
     # On ajoute les controllers
     app.register_blueprint(main_controllers)
 
