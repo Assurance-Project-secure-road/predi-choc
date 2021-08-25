@@ -4,8 +4,14 @@ from flask.cli import with_appcontext
 from getpass import getpass
 from werkzeug.security import generate_password_hash
 from consolemenu import SelectionMenu
-from app.models import Caracteristique, Lieux, Usager, Vehicule, User, UserRole
 from app.db import db
+from app.models import Caracteristique, Lieux, Usager, Vehicule, User, UserRole
+from app.helpers import (
+    format_data_caracteristiques,
+    format_data_lieux,
+    format_data_usagers,
+    format_data_vehicules,
+)
 
 
 @click.command("insert-db")
