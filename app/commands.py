@@ -19,20 +19,22 @@ from app.helpers import (
 def insert_db():
     """Insère les données nécessaire à l'utilisation de l'application"""
     # On récupère les données du fichier CSV dans un dataframe
-    caracteristiques = pd.read_csv("data/caracteristiques.csv")
-    lieux = pd.read_csv("data/lieux.csv")
-    usagers = pd.read_csv("data/usagers.csv")
-    vehicules = pd.read_csv("data/vehicules.csv")
+    caracteristiques = pd.read_csv(
+        "data/caracteristiques.csv", delimiter=";", decimal=","
+    )
+    lieux = pd.read_csv("data/lieux.csv", delimiter=";", decimal=",")
+    usagers = pd.read_csv("data/usagers.csv", delimiter=";", decimal=",")
+    vehicules = pd.read_csv("data/vehicules.csv", delimiter=";", decimal=",")
     # On format les données (int64 pour les champs) afin de les préparer à l'insertion
     caracteristiques = format_data_caracteristiques(caracteristiques)
     lieux = format_data_lieux(lieux)
-    usagers = format_data_usagers(usagers)
     vehicules = format_data_vehicules(vehicules)
+    usagers = format_data_usagers(usagers)
     # On insère les données dans la table
     Caracteristique.insert_from_pd(caracteristiques)
-    Lieux.insert_from_pd(caracteristiques)
-    Usager.insert_from_pd(caracteristiques)
-    Vehicule.insert_from_pd(caracteristiques)
+    Lieux.insert_from_pd(lieux)
+    Vehicule.insert_from_pd(vehicules)
+    Usager.insert_from_pd(usagers)
     print("Données dans la BDD insérées")
 
     # On crée les roles Admin et Membre avec des permissions différentes

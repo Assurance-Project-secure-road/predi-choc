@@ -6,34 +6,36 @@ from app.db import db
 
 class Caracteristique(db.Model):
     __tablename__ = "Caracteristique"
-    Num_Acc_id = db.Column("Num_Acc_id", db.Integer, primary_key=True)
+    Num_Acc_id = db.Column("Num_Acc_id", db.String, primary_key=True)
     Date_Acc = db.Column("Date_Acc", db.DateTime)
     Lumiere_Acc = db.Column("Lumiere_Acc", db.Integer)
     Departement_Acc = db.Column("Departement_Acc", db.String)
     Commune_Acc = db.Column("Commune_Acc", db.String)
     Agglomeration_Acc = db.Column("Agglomeration_Acc", db.Integer)
     Intersection_Acc = db.Column("Intersection_Acc", db.Integer)
-    Meteo_Acc = db.Column("Meteo", db.Integer)
+    Meteo_Acc = db.Column("Meteo_Acc", db.Integer)
     Collision_Acc = db.Column("Collision_Acc", db.Integer)
     Addresse_Acc = db.Column("Addresse_Acc", db.String)
-    Latitude_Acc = db.Column("Latitude_Acc", db.Numeric(10, 7))
-    Longitude_Acc = db.Column("Longitude_Acc", db.Numeric(10, 7))
+    Latitude_Acc = db.Column("Latitude_Acc", db.Numeric(11, 7))
+    Longitude_Acc = db.Column("Longitude_Acc", db.Numeric(11, 7))
 
     def insert_from_pd(caracteristiques: DataFrame):
-        caracteristiques.to_sql("Caracteristique")
+        caracteristiques.to_sql(
+            "Caracteristique", db.engine, if_exists="append", index=False
+        )
 
 
 class Vehicule(db.Model):
     __tablename__ = "Vehicule"
-    id_Vehicule = db.Column("id_Vehicule", db.Integer, primary_key=True)
-    Num_Vehicule = db.Column("Num_Vehicule", db.Integer)
+    id_Vehicule = db.Column("id_Vehicule", db.String, primary_key=True)
+    Num_Vehicule = db.Column("Num_Vehicule", db.String)
     Sens_circulation_Vehicule = db.Column("Sens_circulation_Vehicule", db.Integer)
     Categorie_Vehicule = db.Column("Categorie_Vehicule", db.Integer)
-    Obstacle_fixe_heurete_Vehicule = db.Column(
-        "Obstacle_fixe_heurete_Vehicule", db.Integer
+    Obstacle_fixe_heurte_Vehicule = db.Column(
+        "Obstacle_fixe_heurte_Vehicule", db.Integer
     )
-    Obstacle_mobile_heurete_Vehicule = db.Column(
-        "Obstacle_mobile_heurete_Vehicule", db.Integer
+    Obstacle_mobile_heurte_Vehicule = db.Column(
+        "Obstacle_mobile_heurte_Vehicule", db.Integer
     )
     Point_choc_Vehicule = db.Column("Point_choc_Vehicule", db.Integer)
     Manoeuvre_avant_accident_Vehicule = db.Column(
@@ -44,7 +46,7 @@ class Vehicule(db.Model):
     Num_Acc_id = db.Column("Num_Acc_id", db.ForeignKey("Caracteristique.Num_Acc_id"))
 
     def insert_from_pd(vehicules: DataFrame):
-        vehicules.to_sql("Vehicule")
+        vehicules.to_sql("Vehicule", db.engine, if_exists="append", index=False)
 
 
 class Usager(db.Model):
@@ -61,17 +63,17 @@ class Usager(db.Model):
     Action_pieton_Usager = db.Column("Action_pieton_Usager", db.String)
     Nb_pieton_Usager = db.Column("Nb_pieton_Usager", db.Integer)
     Num_Acc_id = db.Column("Num_Acc_id", db.ForeignKey("Caracteristique.Num_Acc_id"))
-    id_Vehicule = db.Column("id_Vehicule", db.ForeignKey("Vehicule.id_vehicule"))
+    id_Vehicule = db.Column("id_Vehicule", db.ForeignKey("Vehicule.id_Vehicule"))
 
     def insert_from_pd(usagers: DataFrame):
-        usagers.to_sql("Usager")
+        usagers.to_sql("Usager", db.engine, if_exists="append", index=False)
 
 
 class Lieux(db.Model):
     __tablename__ = "Lieux"
-    ID_Route = db.Column("ID_Route", db.Integer, primary_key=True)
+    id_Route = db.Column("id_Route", db.Integer, primary_key=True)
     Categorie_Route = db.Column("Categorie_Route", db.Integer)
-    Numero_Route = db.Column("Numero_Route", db.Integer)
+    Numero_Route = db.Column("Numero_Route", db.String)
     Indice_num_Route = db.Column("Indice_num_Route", db.Integer)
     Indice_alphanum_Route = db.Column("Indice_alphanum_Route", db.String(5))
     Circulation_Route = db.Column("Circulation_Route", db.Integer)
@@ -79,18 +81,18 @@ class Lieux(db.Model):
     Type_voie_Route = db.Column("Type_voie_Route", db.Integer)
     Declivite_Route = db.Column("Declivite_Route", db.Integer)
     Num_borne_Route = db.Column("Num_borne_Route", db.Integer)
-    Distance_borne_Route = db.Column("Distance_borne_Route", db.Integer)
+    Distance_borne_Route = db.Column("Distance_Borne_Route", db.Integer)
     Tracer_plan_Route = db.Column("Tracer_plan_Route", db.Integer)
     Largeur_TPC_Route = db.Column("Largeur_TPC_Route", db.Integer)
     Largeur_Route = db.Column("Largeur_Route", db.Integer)
     Surface_Route = db.Column("Surface_Route", db.Integer)
-    Infrastruture_Route = db.Column("Infrastruture_Route", db.Integer)
+    Infrastructure_Route = db.Column("Infrastructure_Route", db.Integer)
     Situation_Acc_Route = db.Column("Situation_Acc_Route", db.Integer)
     Vitesse_max_Route = db.Column("Vitesse_max_Route", db.Integer)
     Num_Acc_id = db.Column("Num_Acc_id", db.ForeignKey("Caracteristique.Num_Acc_id"))
 
     def insert_from_pd(lieux: DataFrame):
-        lieux.to_sql("Lieux")
+        lieux.to_sql("Lieux", db.engine, if_exists="append", index=False)
 
 
 class User(UserMixin, db.Model):

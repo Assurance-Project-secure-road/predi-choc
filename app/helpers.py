@@ -1,39 +1,50 @@
-from pandas import DataFrame
+import pandas as pd
+import numpy as np
 from datetime import datetime
 
 
-def format_data_caracteristiques(caracteristiques: DataFrame):
+def format_data_caracteristiques(caracteristiques: pd.DataFrame):
 
-    caracteristiques["atm"] = caracteristiques["atm"].apply(lambda x: pd.NA if x == -1 else x)
-    caracteristiques["col"] = caracteristiques["col"].apply(lambda x: pd.NA if x == -1 else x)
-    caracteristiques["date"] = caracteristiques.apply(lambda line: datetime(line["an"], line["mois"], line["jour"], int(line["hrmn"].split(":")[0]), int(line["hrmn"].split(":")[1])), axis=1)
+    caracteristiques["atm"] = caracteristiques["atm"].apply(
+        lambda x: pd.NA if x == -1 else x
+    )
+    caracteristiques["col"] = caracteristiques["col"].apply(
+        lambda x: pd.NA if x == -1 else x
+    )
+    caracteristiques["date"] = caracteristiques.apply(
+        lambda line: datetime(
+            line["an"],
+            line["mois"],
+            line["jour"],
+            int(line["hrmn"].split(":")[0]),
+            int(line["hrmn"].split(":")[1]),
+        ),
+        axis=1,
+    )
 
-
-
-    
     caracteristiques = caracteristiques.rename(
         columns={
-            "Num_Acc":"Num_Acc_id",
-            "date":"Date_Acc",
-            "lum":"Lumiere_Acc",
-            "dep":"Departement_Acc",
-            "com":"Commune_Acc",
-            "agg":"Agglomeration_Acc",
-            "int":"Intersection_Acc",
-            "atm":"Meteo_Acc",
-            "col":"Collision_Acc",
-            "adr":"Addresse_Acc",
-            "lat":"Latitude_Acc",
-            "long":"Longitude_Acc"
-            
-        })
-    
-    caracteristiques = caracteristiques.drop(columns={"jour","mois","an","hrmn"})
+            "Num_Acc": "Num_Acc_id",
+            "date": "Date_Acc",
+            "lum": "Lumiere_Acc",
+            "dep": "Departement_Acc",
+            "com": "Commune_Acc",
+            "agg": "Agglomeration_Acc",
+            "int": "Intersection_Acc",
+            "atm": "Meteo_Acc",
+            "col": "Collision_Acc",
+            "adr": "Addresse_Acc",
+            "lat": "Latitude_Acc",
+            "long": "Longitude_Acc",
+        }
+    )
+
+    caracteristiques = caracteristiques.drop(columns={"jour", "mois", "an", "hrmn"})
 
     return caracteristiques
 
 
-def format_data_lieux(lieux: DataFrame):
+def format_data_lieux(lieux: pd.DataFrame):
 
     lieux["catr"].replace(9, np.nan, inplace=True)
     lieux["circ"].replace(-1, np.nan, inplace=True)
@@ -44,6 +55,21 @@ def format_data_lieux(lieux: DataFrame):
     lieux["surf"].replace([-1, 9], np.nan, inplace=True)
     lieux["infra"].replace([-1, 9], np.nan, inplace=True)
     lieux["situ"].replace([-1, 8], np.nan, inplace=True)
+
+    lieux["pr"].replace("(1)", 1, inplace=True)
+    lieux["pr1"].replace("(1)", 1, inplace=True)
+    lieux["larrout"] = lieux["larrout"].apply(
+        lambda x: np.ceil(float(x)) if not pd.isna(x) else x
+    )
+    lieux["lartpc"] = lieux["lartpc"].apply(
+        lambda x: np.ceil(float(x)) if not pd.isna(x) else x
+    )
+    lieux["pr"] = lieux["pr"].apply(
+        lambda x: np.ceil(float(x)) if not pd.isna(x) else x
+    )
+    lieux["pr1"] = lieux["pr1"].apply(
+        lambda x: np.ceil(float(x)) if not pd.isna(x) else x
+    )
 
     lieux = lieux.rename(
         columns={
@@ -79,7 +105,7 @@ def format_data_lieux(lieux: DataFrame):
     return lieux
 
 
-def format_data_usagers(usagers: DataFrame):
+def format_data_usagers(usagers: pd.DataFrame):
 
     usagers.replace(-1, np.nan, inplace=True)
     usagers = usagers.replace(" -1", np.NAN)
@@ -88,6 +114,7 @@ def format_data_usagers(usagers: DataFrame):
     usagers = usagers.rename(
         columns={
             "Num_Acc": "Num_Acc_id",
+            "id_vehicule": "id_Vehicule",
             "place": "Place_Usager",
             "catu": "Categorie_Usager",
             "grav": "Gravblessure_Usager",
@@ -101,41 +128,35 @@ def format_data_usagers(usagers: DataFrame):
         }
     )
 
-
     usagers = usagers.reset_index()
     usagers = usagers.rename(columns={"index": "id_Usager"})
     usagers.id_Usager = usagers.id_Usager + 1
-    
-    
+
     usagers = usagers.drop(["num_veh", "secu2", "secu3"], axis=1)
     return usagers
 
 
-def format_data_vehicules(vehicules: DataFrame):
+def format_data_vehicules(vehicules: pd.DataFrame):
 
-    col_replace_null =  vehicules.columns[3:-1]
+    col_replace_null = vehicules.columns[3:-1]
 
     for col in col_replace_null:
         vehicules[col].replace(-1, np.nan, inplace=True)
         vehicules[col] = vehicules[col].astype("Int64")
 
-    
-
-    
     vehicules = vehicules.rename(
         columns={
             "Num_Acc": "Num_Acc_id",
             "id_vehicule": "id_Vehicule",
             "num_veh": "Num_Vehicule",
             "senc": "Sens_circulation_Vehicule",
-            "catv": "Catégorie_Vehicule",
+            "catv": "Categorie_Vehicule",
             "obs": "Obstacle_fixe_heurte_Vehicule",
             "obsm": "Obstacle_mobile_heurte_Vehicule",
             "choc": "Point_choc_Vehicule",
             "manv": "Manoeuvre_avant_accident_Vehicule",
             "motor": "Type_motorisation_Vehicule",
-            "occutc": "Nb_occupant_Vehicule"
-            
+            "occutc": "Nb_occupant_Vehicule",
         }
     )
 
