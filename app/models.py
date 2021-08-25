@@ -25,7 +25,7 @@ class Caracteristique(db.Model):
 
 class Vehicule(db.Model):
     __tablename__ = "Vehicule"
-    id_Vehicule = db.Column("id_vehicule", db.Integer, primary_key=True)
+    id_Vehicule = db.Column("id_Vehicule", db.Integer, primary_key=True)
     Num_Vehicule = db.Column("Num_Vehicule", db.Integer)
     Sens_circulation_Vehicule = db.Column("Sens_circulation_Vehicule", db.Integer)
     Categorie_Vehicule = db.Column("Categorie_Vehicule", db.Integer)

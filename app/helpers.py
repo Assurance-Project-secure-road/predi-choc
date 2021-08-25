@@ -1,17 +1,142 @@
 from pandas import DataFrame
+from datetime import datetime
 
 
 def format_data_caracteristiques(caracteristiques: DataFrame):
+
+    caracteristiques["atm"] = caracteristiques["atm"].apply(lambda x: pd.NA if x == -1 else x)
+    caracteristiques["col"] = caracteristiques["col"].apply(lambda x: pd.NA if x == -1 else x)
+    caracteristiques["date"] = caracteristiques.apply(lambda line: datetime(line["an"], line["mois"], line["jour"], int(line["hrmn"].split(":")[0]), int(line["hrmn"].split(":")[1])), axis=1)
+
+
+
+    
+    caracteristiques = caracteristiques.rename(
+        columns={
+            "Num_Acc":"Num_Acc_id",
+            "date":"Date_Acc",
+            "lum":"Lumiere_Acc",
+            "dep":"Departement_Acc",
+            "com":"Commune_Acc",
+            "agg":"Agglomeration_Acc",
+            "int":"Intersection_Acc",
+            "atm":"Meteo_Acc",
+            "col":"Collision_Acc",
+            "adr":"Addresse_Acc",
+            "lat":"Latitude_Acc",
+            "long":"Longitude_Acc"
+            
+        })
+    
+    caracteristiques = caracteristiques.drop(columns={"jour","mois","an","hrmn"})
+
     return caracteristiques
 
 
 def format_data_lieux(lieux: DataFrame):
+
+    lieux["catr"].replace(9, np.nan, inplace=True)
+    lieux["circ"].replace(-1, np.nan, inplace=True)
+    lieux["vosp"].replace(-1, np.nan, inplace=True)
+    lieux["prof"].replace(-1, np.nan, inplace=True)
+    lieux["vma"].replace(-1, np.nan, inplace=True)
+    lieux["prof"].replace(-1, np.nan, inplace=True)
+    lieux["surf"].replace([-1, 9], np.nan, inplace=True)
+    lieux["infra"].replace([-1, 9], np.nan, inplace=True)
+    lieux["situ"].replace([-1, 8], np.nan, inplace=True)
+
+    lieux = lieux.rename(
+        columns={
+            "Num_Acc": "Num_Acc_id",
+            "catr": "Categorie_Route",
+            "voie": "Numero_Route",
+            "v1": "Indice_num_Route",
+            "v2": "Indice_alphanum_Route",
+            "circ": "Circulation_Route",
+            "nbv": "Nb_voie_Route",
+            "vosp": "Type_voie_Route",
+            "prof": "Declivite_Route",
+            "pr": "Num_borne_Route",
+            "pr1": "Distance_Borne_Route",
+            "plan": "Tracer_plan_Route",
+            "lartpc": "Largeur_TPC_Route",
+            "larrout": "Largeur_Route",
+            "surf": "Surface_Route",
+            "infra": "Infrastructure_Route",
+            "situ": "Situation_Acc_Route",
+            "vma": "Vitesse_max_Route",
+        }
+    )
+
+    lieux = lieux.reset_index()
+    lieux = lieux.rename(columns={"index": "id_Route"})
+    lieux.id_Route = lieux.id_Route + 1
+
+    col_name = "Num_Acc_id"
+    fk_col = lieux.pop(col_name)
+    lieux.insert(18, col_name, fk_col)
+
     return lieux
 
 
 def format_data_usagers(usagers: DataFrame):
+
+    usagers.replace(-1, np.nan, inplace=True)
+    usagers = usagers.replace(" -1", np.NAN)
+    usagers = usagers.replace("0", np.NAN)
+    usagers["trajet"] = usagers["trajet"].replace(0, np.NAN)
+    usagers = usagers.rename(
+        columns={
+            "Num_Acc": "Num_Acc_id",
+            "place": "Place_Usager",
+            "catu": "Categorie_Usager",
+            "grav": "Gravblessure_Usager",
+            "sexe": "Sexe_Usager",
+            "an_nais": "Anne_Naissance_Usager",
+            "trajet": "Motif_Deplacer_Usager",
+            "secu1": "Equipement_Secu_Usager",
+            "locp": "Localisation_pieton_Usager",
+            "actp": "Action_pieton_Usager",
+            "etatp": "Nb_pieton_Usager",
+        }
+    )
+
+
+    usagers = usagers.reset_index()
+    usagers = usagers.rename(columns={"index": "id_Usager"})
+    usagers.id_Usager = usagers.id_Usager + 1
+    
+    
+    usagers = usagers.drop(["num_veh", "secu2", "secu3"], axis=1)
     return usagers
 
 
 def format_data_vehicules(vehicules: DataFrame):
+
+    col_replace_null =  vehicules.columns[3:-1]
+
+    for col in col_replace_null:
+        vehicules[col].replace(-1, np.nan, inplace=True)
+        vehicules[col] = vehicules[col].astype("Int64")
+
+    
+
+    
+    vehicules = vehicules.rename(
+        columns={
+            "Num_Acc": "Num_Acc_id",
+            "id_vehicule": "id_Vehicule",
+            "num_veh": "Num_Vehicule",
+            "senc": "Sens_circulation_Vehicule",
+            "catv": "Catégorie_Vehicule",
+            "obs": "Obstacle_fixe_heurte_Vehicule",
+            "obsm": "Obstacle_mobile_heurte_Vehicule",
+            "choc": "Point_choc_Vehicule",
+            "manv": "Manoeuvre_avant_accident_Vehicule",
+            "motor": "Type_motorisation_Vehicule",
+            "occutc": "Nb_occupant_Vehicule"
+            
+        }
+    )
+
     return vehicules
