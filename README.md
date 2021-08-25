@@ -31,10 +31,10 @@ pip install -r requirements.txt
 ```
 
 # Configuration
-Ouvrir le fichier `exemple_config.yml` et remplacer les valeurs par défaut par celle de votre environnement. Copier ensuite ce fichier dans un dossier instance et le renommer config.json.
+Ouvrir le fichier `exemple_config.yml` et remplacer les valeurs par défaut par celle de votre environnement. Copier ensuite ce fichier dans un dossier instance et le renommer config.yml.
 ```console
 mkdir instance
-cp exemple_config.json instance/config.json
+cp exemple_config.yml instance/config.yml
 ```
 Ensuite exécuter les commandes de configuration pour la BDD:
 ```console
