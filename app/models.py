@@ -115,7 +115,7 @@ class User(UserMixin, db.Model):
         gravatar_url += urllib.parse.urlencode({"s": "40"})
         return gravatar_url
 
-    def has_permissions(self, perms: list[str]):
+    def has_permissions(self, perms: list):
         return all([perm in self.role.permissions for perm in perms])
 
 
