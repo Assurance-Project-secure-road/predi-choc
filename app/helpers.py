@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 from datetime import datetime
+from joblib import load
 
 
 def format_data_caracteristiques(caracteristiques: pd.DataFrame):
@@ -166,3 +167,13 @@ def format_data_vehicules(vehicules: pd.DataFrame):
     )
 
     return vehicules
+
+
+def getTypeModel():
+    model_collision = load("data/model_collision.joblib")
+    return model_collision
+
+
+def getGraviteModel():
+    model_gravite = load("data/model_gravite.joblib")
+    return model_gravite
