@@ -71,6 +71,11 @@ def format_data_lieux(lieux: pd.DataFrame):
         lambda x: np.ceil(float(x)) if not pd.isna(x) else x
     )
 
+    lieux.loc[lieux["vma"] > 130, "vma"] = lieux.loc[lieux["vma"] > 130, "vma"].apply(
+        lambda x: x / 10
+    )
+    lieux.loc[lieux["vma"] < 10, "vma"] = lieux["vma"][lieux["vma"] < 10] * 10
+
     lieux = lieux.rename(
         columns={
             "Num_Acc": "Num_Acc_id",
