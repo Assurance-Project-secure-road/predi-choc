@@ -1,6 +1,6 @@
-from flask import Blueprint, request, json
+from flask import Blueprint, request, jsonify
 import pandas as pd
-from helpers import getTypeModel, getGraviteModel
+from app.helpers import getTypeModel, getGraviteModel
 
 main_controllers = Blueprint("main", __name__, url_prefix="/")
 
@@ -34,4 +34,4 @@ def sondage():
     type_model = getTypeModel()
     gravite = gravite_model.predict(form)
     type = type_model.predict(form)
-    return json(dict(gravite=gravite, type=type))
+    return jsonify(gravite=gravite[0], type=type[0])

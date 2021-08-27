@@ -4,7 +4,7 @@ from flask_migrate import Migrate
 import yaml
 from app.controllers import main_controllers
 from app.db import db
-from app.commands import insert_db, create_user
+from app.commands import insert_db, create_user, generate_model
 
 
 def create_app(test_config=None):
@@ -60,6 +60,9 @@ def create_app(test_config=None):
 
     # On ajoute la commande "flask create-user" à l'application
     app.cli.add_command(create_user)
+
+    # On ajoute la commande "flask generate-model" à l'application
+    app.cli.add_command(generate_model)
 
     # On ajoute les controllers
     app.register_blueprint(main_controllers)
