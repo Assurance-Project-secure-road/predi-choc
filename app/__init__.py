@@ -5,6 +5,7 @@ import yaml
 from app.controllers import main_controllers
 from app.db import db
 from app.commands import insert_db, create_user, generate_model
+from app.services import model_service
 
 
 def create_app(test_config=None):
@@ -48,6 +49,9 @@ def create_app(test_config=None):
     # Dans le cas de tests, on passe directement la configuration à create_app, la config de test doit donc remplacer toutes les configs précédentes
     if test_config is not None:
         app.config.from_mapping(test_config)
+
+    # On charge les modèles entraînés
+    model_service.init_app(app)
 
     # On initialise la configuration de connexion à la bdd
     db.init_app(app)

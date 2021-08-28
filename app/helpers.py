@@ -1,16 +1,13 @@
 import pandas as pd
 import numpy as np
 from datetime import datetime
-from joblib import load, dump
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.preprocessing import StandardScaler, OneHotEncoder
 from sklearn.compose import ColumnTransformer
 from sklearn.pipeline import Pipeline
 from sklearn.model_selection import StratifiedShuffleSplit
 from sklearn.metrics import accuracy_score, classification_report
-
-model_collision = load("data/Collision_Acc.joblib")
-model_gravite = load("data/Gravblessure_Usager.joblib")
+from app.services import model_service
 
 
 def format_data_caracteristiques(caracteristiques: pd.DataFrame):
@@ -179,11 +176,11 @@ def format_data_vehicules(vehicules: pd.DataFrame):
 
 
 def getTypeModel():
-    return model_collision
+    return model_service.collision
 
 
 def getGraviteModel():
-    return model_gravite
+    return model_service.gravite
 
 
 def train_model(data, y, num_attribs, cat_attribs):
@@ -217,6 +214,10 @@ def train_model(data, y, num_attribs, cat_attribs):
     accuracy = accuracy_score(y_test, y_pred)
     print(f"Accuracy RFST (train) for '{y}': {(accuracy * 100): 0.1f} ")
     print(classification_report(y_test, y_pred))
-    dump(full_pipeline, f"data/{y}.joblib")
+
+    if y == "Gravblessure_Usager":
+        model_service.save_gravite(full_pipeline)
+    elif y == "Collision_Acc":
+        model_service.save_collision(full_pipeline)
 
     return accuracy
