@@ -20,14 +20,14 @@ class ModelService:
 
         if os.path.isfile(self.gravite_path):
             self.__gravite: Pipeline = load(self.gravite_path)
-        elif click.get_current_context().command.name == "run":
+        else:
             app.logger.warning(
                 f"Le fichier '{self.gravite_path}' pour le modèle de prédiction n'a pas été généré correctement, merci de lancer flask generate-model."
             )
 
         if os.path.isfile(self.collision_path):
             self.__collision: Pipeline = load(self.collision_path)
-        elif click.get_current_context().command.name == "run":
+        else:
             app.logger.warning(
                 f"Le fichier '{self.collision_path}' pour le modèle de prédiction n'a pas été généré correctement, merci de lancer flask generate-model."
             )
