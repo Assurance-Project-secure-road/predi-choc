@@ -9,6 +9,9 @@ from sklearn.pipeline import Pipeline
 from sklearn.model_selection import StratifiedShuffleSplit
 from sklearn.metrics import accuracy_score, classification_report
 
+model_collision = load("data/Collision_Acc.joblib")
+model_gravite = load("data/Gravblessure_Usager.joblib")
+
 
 def format_data_caracteristiques(caracteristiques: pd.DataFrame):
 
@@ -176,47 +179,44 @@ def format_data_vehicules(vehicules: pd.DataFrame):
 
 
 def getTypeModel():
-    model_collision = load("data/Collision_Acc.joblib")
     return model_collision
 
 
 def getGraviteModel():
-    model_gravite = load("data/Gravblessure_Usager.joblib")
     return model_gravite
 
 
 def train_model(data, y, num_attribs, cat_attribs):
+    data_x = data[num_attribs + cat_attribs]
     num_pipeline = Pipeline(
         [
             ("std_scaler", StandardScaler()),
         ]
     )
-    full_pipeline = ColumnTransformer(
+    col_transform = ColumnTransformer(
         [
             ("num", num_pipeline, num_attribs),
             ("cat", OneHotEncoder(), cat_attribs),
         ]
     )
     classifier = RandomForestClassifier(n_estimators=200, n_jobs=-1)
+    full_pipeline = Pipeline([("data_tr", col_transform), ("classifier", classifier)])
     split = StratifiedShuffleSplit(n_splits=1, test_size=0.1, random_state=42)
-    for train_index, test_index in split.split(data, data[y]):
+    for train_index, test_index in split.split(data_x, data[y]):
         X_train, y_train = (
-            data.loc[train_index],
+            data_x.loc[train_index],
             data.loc[train_index][y],
         )
         X_test, y_test = (
-            data.loc[test_index],
+            data_x.loc[test_index],
             data.loc[test_index][y],
         )
 
-    X_train = full_pipeline.fit_transform(X_train)
-    X_test = full_pipeline.transform(X_test)
-
-    classifier.fit(X_train, np.ravel(y_train))
-    y_pred = classifier.predict(X_test)
+    full_pipeline.fit(X_train, np.ravel(y_train))
+    y_pred = full_pipeline.predict(X_test)
     accuracy = accuracy_score(y_test, y_pred)
     print(f"Accuracy RFST (train) for '{y}': {(accuracy * 100): 0.1f} ")
     print(classification_report(y_test, y_pred))
-    dump(classifier, f"data/{y}.joblib")
+    dump(full_pipeline, f"data/{y}.joblib")
 
     return accuracy
