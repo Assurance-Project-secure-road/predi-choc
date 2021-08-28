@@ -12,4 +12,4 @@ services:
 
 script:
   - python -m pytest -v
-  - cp .env.example .env
+  - cp .env.exemple .env
