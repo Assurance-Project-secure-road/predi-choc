@@ -11,7 +11,9 @@ from app.helpers import (
     format_data_lieux,
     format_data_usagers,
     format_data_vehicules,
+    train_model,
 )
+import time
 
 
 @click.command("insert-db")
@@ -98,3 +100,46 @@ def create_user():
         print("Utilisateur ajouté !")
     else:
         print("Mot de passe non identique")
+
+
+@click.command("generate-model")
+@with_appcontext
+def generate_model():
+    """Generate the two models needed for the prediction, need to be run before any prediction"""
+    print("Chargement des données...")
+    data = pd.read_sql_query(
+        'SELECT "Sexe_Usager", "Anne_Naissance_Usager", "Equipement_Secu_Usager", "Commune_Acc", "Gravblessure_Usager", "Collision_Acc", "Categorie_Vehicule", "Type_motorisation_Vehicule", "Categorie_Route", "Circulation_Route", "Nb_voie_Route", "Vitesse_max_Route", "Surface_Route", "Date_Acc", "Lumiere_Acc", "Meteo_Acc", "Motif_Deplacer_Usager", "Departement_Acc" FROM "Caracteristique" JOIN "Lieux" ON ("Caracteristique"."Num_Acc_id" = "Lieux"."Num_Acc_id") JOIN "Usager" ON ("Caracteristique"."Num_Acc_id" = "Usager"."Num_Acc_id") JOIN "Vehicule" ON ("Caracteristique"."Num_Acc_id" = "Vehicule"."Num_Acc_id")',
+        db.engine,
+    )
+    data["Date_Acc"] = pd.to_datetime(data["Date_Acc"])
+    data["Month"] = data["Date_Acc"].dt.month
+    data["Age"] = 2019 - data["Anne_Naissance_Usager"]
+    data.dropna(inplace=True)
+    data.reset_index(drop=True, inplace=True)
+
+    num_attribs = ["Age", "Nb_voie_Route", "Vitesse_max_Route"]
+    cat_attribs = [
+        "Sexe_Usager",
+        "Equipement_Secu_Usager",
+        "Departement_Acc",
+        "Categorie_Vehicule",
+        "Month",
+        "Type_motorisation_Vehicule",
+        "Categorie_Route",
+        "Circulation_Route",
+        "Surface_Route",
+        "Lumiere_Acc",
+        "Meteo_Acc",
+        "Motif_Deplacer_Usager",
+    ]
+    print("Entrainement du modèle pour la gravité des blessures...")
+    print("Cela peut prendre 20 minutes...")
+    start_time = time.time()
+    train_model(data, "Gravblessure_Usager", num_attribs, cat_attribs)
+    print(f"--- Temps d'exécution : {(time.time() - start_time)} secondes ---")
+    print("Entrainement du modèle pour le type de collision...")
+    print("Cela peut prendre 20 minutes...")
+    start_time = time.time()
+    train_model(data, "Collision_Acc", num_attribs, cat_attribs)
+    print(f"--- Temps d'exécution : {(time.time() - start_time)} secondes ---")
+    print("Entrainements terminés et enregistrés dans /data/ !")

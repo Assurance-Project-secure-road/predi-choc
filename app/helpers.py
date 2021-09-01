@@ -1,6 +1,13 @@
 import pandas as pd
 import numpy as np
 from datetime import datetime
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.preprocessing import StandardScaler, OneHotEncoder
+from sklearn.compose import ColumnTransformer
+from sklearn.pipeline import Pipeline
+from sklearn.model_selection import StratifiedShuffleSplit
+from sklearn.metrics import accuracy_score, classification_report
+from app.services import model_service
 
 
 def format_data_caracteristiques(caracteristiques: pd.DataFrame):
@@ -70,6 +77,11 @@ def format_data_lieux(lieux: pd.DataFrame):
     lieux["pr1"] = lieux["pr1"].apply(
         lambda x: np.ceil(float(x)) if not pd.isna(x) else x
     )
+
+    lieux.loc[lieux["vma"] > 130, "vma"] = lieux.loc[lieux["vma"] > 130, "vma"].apply(
+        lambda x: x / 10
+    )
+    lieux.loc[lieux["vma"] < 10, "vma"] = lieux["vma"][lieux["vma"] < 10] * 10
 
     lieux = lieux.rename(
         columns={
@@ -161,3 +173,51 @@ def format_data_vehicules(vehicules: pd.DataFrame):
     )
 
     return vehicules
+
+
+def getTypeModel():
+    return model_service.collision
+
+
+def getGraviteModel():
+    return model_service.gravite
+
+
+def train_model(data, y, num_attribs, cat_attribs):
+    data_x = data[num_attribs + cat_attribs]
+    num_pipeline = Pipeline(
+        [
+            ("std_scaler", StandardScaler()),
+        ]
+    )
+    col_transform = ColumnTransformer(
+        [
+            ("num", num_pipeline, num_attribs),
+            ("cat", OneHotEncoder(), cat_attribs),
+        ]
+    )
+    classifier = RandomForestClassifier(n_estimators=200, n_jobs=-1)
+    full_pipeline = Pipeline([("data_tr", col_transform), ("classifier", classifier)])
+    split = StratifiedShuffleSplit(n_splits=1, test_size=0.1, random_state=42)
+    for train_index, test_index in split.split(data_x, data[y]):
+        X_train, y_train = (
+            data_x.loc[train_index],
+            data.loc[train_index][y],
+        )
+        X_test, y_test = (
+            data_x.loc[test_index],
+            data.loc[test_index][y],
+        )
+
+    full_pipeline.fit(X_train, np.ravel(y_train))
+    y_pred = full_pipeline.predict(X_test)
+    accuracy = accuracy_score(y_test, y_pred)
+    print(f"Accuracy RFST (train) for '{y}': {(accuracy * 100): 0.1f} ")
+    print(classification_report(y_test, y_pred))
+
+    if y == "Gravblessure_Usager":
+        model_service.save_gravite(full_pipeline)
+    elif y == "Collision_Acc":
+        model_service.save_collision(full_pipeline)
+
+    return accuracy

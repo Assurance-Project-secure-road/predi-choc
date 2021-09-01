@@ -4,7 +4,8 @@ from flask_migrate import Migrate
 import yaml
 from app.controllers import main_controllers
 from app.db import db
-from app.commands import insert_db, create_user
+from app.commands import insert_db, create_user, generate_model
+from app.services import model_service
 
 
 def create_app(test_config=None):
@@ -49,6 +50,9 @@ def create_app(test_config=None):
     if test_config is not None:
         app.config.from_mapping(test_config)
 
+    # On charge les modèles entraînés
+    model_service.init_app(app)
+
     # On initialise la configuration de connexion à la bdd
     db.init_app(app)
 
@@ -60,6 +64,9 @@ def create_app(test_config=None):
 
     # On ajoute la commande "flask create-user" à l'application
     app.cli.add_command(create_user)
+
+    # On ajoute la commande "flask generate-model" à l'application
+    app.cli.add_command(generate_model)
 
     # On ajoute les controllers
     app.register_blueprint(main_controllers)

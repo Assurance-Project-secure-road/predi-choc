@@ -1,14 +1,4 @@
-from operator import index
-from pandas.core.frame import DataFrame
-from pandas._testing import assert_frame_equal
-from app.helpers import (
-    format_data_caracteristiques,
-    format_data_lieux,
-    format_data_usagers,
-    format_data_vehicules,
-)
 import pytest
-import pandas as pd
 from app import create_app
 from app.db import db
 from app.models import (
