@@ -58,6 +58,7 @@ def format_data_lieux(lieux: pd.DataFrame):
     lieux["vosp"].replace(-1, np.nan, inplace=True)
     lieux["prof"].replace(-1, np.nan, inplace=True)
     lieux["vma"].replace(-1, np.nan, inplace=True)
+    lieux["nbv"].replace(-1, np.nan, inplace=True)
     lieux["prof"].replace(-1, np.nan, inplace=True)
     lieux["surf"].replace([-1, 9], np.nan, inplace=True)
     lieux["infra"].replace([-1, 9], np.nan, inplace=True)
