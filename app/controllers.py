@@ -29,16 +29,40 @@ def sondage():
         "Meteo_Acc",
         "Motif_Deplacer_Usager",
     ]
+    gravite_model = getGraviteModel()
+    type_model = getTypeModel()
+    resp_list = []
+
     if request.is_json:
-        form = pd.DataFrame.from_dict(
-            {name: [value] for (name, value) in request.json.items()}
-        )
+        form_json = request.json
+        if not isinstance(form_json, list):
+            form_json = [form_json]
+        for form in form_json:
+            data = pd.DataFrame.from_dict(
+                {name: [value] for (name, value) in form.items()}
+            )
+            gravite = gravite_model.predict_proba(data)
+            type = type_model.predict_proba(data)
+            resp_list.append(
+                {
+                    "gravite": {
+                        str(cls): proba
+                        for (cls, proba) in zip(
+                            gravite_model.classes_, gravite.tolist()[0]
+                        )
+                    },
+                    "type": {
+                        str(int(cls)): proba
+                        for (cls, proba) in zip(type_model.classes_, type.tolist()[0])
+                    },
+                }
+            )
     else:
         form = pd.DataFrame.from_dict(
             {attr: [request.form.get(attr)] for attr in attrs}
         )
-    gravite_model = getGraviteModel()
-    type_model = getTypeModel()
-    gravite = gravite_model.predict(form)
-    type = type_model.predict(form)
-    return jsonify(gravite=int(gravite[0]), type=int(type[0]))
+        gravite = gravite_model.predict_proba(form)
+        type = type_model.predict_proba(form)
+        resp_list.append({"gravite": gravite, "type": type})
+
+    return jsonify(data=resp_list, ok=True)
