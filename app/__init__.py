@@ -1,5 +1,5 @@
 import os
-from flask import Flask
+from flask import Flask, render_template
 from flask_migrate import Migrate
 import yaml
 from app.controllers import main_controllers
@@ -70,5 +70,10 @@ def create_app(test_config=None):
 
     # On ajoute les controllers
     app.register_blueprint(main_controllers)
+
+    @app.errorhandler(404)
+    def page_not_found(e):
+        # note that we set the 404 status explicitly
+        return render_template("index.html"), 200
 
     return app
