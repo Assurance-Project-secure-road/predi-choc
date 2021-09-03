@@ -38,9 +38,8 @@ def sondage():
         if not isinstance(form_json, list):
             form_json = [form_json]
         for form in form_json:
-            data = pd.DataFrame.from_dict(
-                {name: [value] for (name, value) in form.items()}
-            )
+            f_dict = {name: value for (name, value) in form.items()}
+            data = pd.DataFrame.from_dict({attr: [f_dict.get(attr)] for attr in attrs})
             gravite = gravite_model.predict_proba(data)
             type = type_model.predict_proba(data)
             resp_list.append(
