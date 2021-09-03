@@ -1,4 +1,4 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, render_template
 import pandas as pd
 from app.helpers import getTypeModel, getGraviteModel
 
@@ -7,7 +7,7 @@ main_controllers = Blueprint("main", __name__, url_prefix="/")
 
 @main_controllers.route("/")
 def index():
-    return "Hello World!"
+    return render_template("index.html")
 
 
 @main_controllers.route("/api/sondage", methods=["POST"])

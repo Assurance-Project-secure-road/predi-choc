@@ -10,7 +10,7 @@ from app.services import model_service
 
 def create_app(test_config=None):
     # On initialise l'app flask
-    app = Flask(__name__, instance_relative_config=True)
+    app = Flask(__name__, instance_relative_config=True, static_url_path="")
     # On initialise flask-migrate pour les outils de migration de la BDD
     migrate = Migrate()
     # Configuration de l'application
